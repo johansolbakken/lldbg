@@ -90,7 +90,7 @@ void FileViewer::synchronize_breakpoint_cache(lldb::SBTarget target)
         // auto file_spec = line_entry.GetFileSpec();
 
         const std::string bp_filepath =
-            fmt::format("{}/{}", line_entry.GetFileSpec().GetDirectory(),
+            std::format("{}/{}", line_entry.GetFileSpec().GetDirectory(),
                         line_entry.GetFileSpec().GetFilename());
 
         const auto maybe_handle = FileHandle::create(bp_filepath);

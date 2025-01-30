@@ -12,7 +12,6 @@
 #include "Defer.hpp"
 #include "Log.hpp"
 #include "StringBuffer.hpp"
-#include "fmt/format.h"
 
 namespace fs = std::filesystem;
 
@@ -23,7 +22,7 @@ static std::map<std::string, std::string> s_debug_stream;
     {                                                  \
         const std::string xkey = std::string(#x);      \
         auto it = s_debug_stream.find(xkey);           \
-        const std::string xstr = fmt::format("{}", x); \
+        const std::string xstr = std::format("{}", x); \
         if (it != s_debug_stream.end()) {              \
             it->second = xstr;                         \
         }                                              \
@@ -1309,7 +1308,7 @@ std::optional<UserInterface> UserInterface::init(void)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 
     io.Fonts->AddFontDefault();
-    static const std::string font_path = fmt::format("{}/ttf/Hack-Regular.ttf", LLDBG_ASSETS_DIR);
+    static const std::string font_path = std::format("{}/ttf/Hack-Regular.ttf", LLDBG_ASSETS_DIR);
     ui.font = io.Fonts->AddFontFromFileTTF(font_path.c_str(), 15.0f);
 
     ImGui::StyleColorsDark();

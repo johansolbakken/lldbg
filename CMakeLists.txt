@@ -5,7 +5,7 @@ project(lldbgui VERSION 0.1
                 LANGUAGES CXX C)
 
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
@@ -45,9 +45,9 @@ add_definitions(-DGLEW_STATIC)
 add_subdirectory(./third_party/glew-2.1.0)
 target_link_libraries(lldbgui libglew_static)
 
-target_include_directories(lldbgui PUBLIC "third_party/fmt-6.2.1/include")
-add_subdirectory(./third_party/fmt-6.2.1/)
-target_link_libraries(lldbgui fmt)
+# target_include_directories(lldbgui PUBLIC "third_party/fmt-6.2.1/include")
+# add_subdirectory(./third_party/fmt-6.2.1/)
+# target_link_libraries(lldbgui fmt)
 
 target_include_directories(lldbgui PUBLIC "third_party/glfw-3.3.2/include")
 set( ENKITS_BUILD_EXAMPLES OFF CACHE BOOL "Build basic example applications" )

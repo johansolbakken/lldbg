@@ -1,10 +1,9 @@
-#include "FileSystem.hpp"
 
+#include "FileSystem.hpp"
 #include <algorithm>
 #include <cstring>
-
+#include <format>
 #include "Log.hpp"
-#include "fmt/format.h"
 
 std::map<size_t, std::string> FileHandle::s_filepath_cache;
 std::map<size_t, std::string> FileHandle::s_filename_cache;
@@ -58,11 +57,9 @@ const std::vector<std::string>& FileHandle::contents(void)
     }
 
     const std::string& filepath = s_filepath_cache[m_hash];
-
     std::ifstream infile(filepath);
 
     std::vector<std::string> contents;
-
     std::string line;
     while (std::getline(infile, line)) {
         line.shrink_to_fit();
@@ -70,7 +67,7 @@ const std::vector<std::string>& FileHandle::contents(void)
     }
     contents.shrink_to_fit();
 
-    LOG(Verbose) << "Read file from disk: " << filepath;
+    LOG(Verbose) << std::format("Read file from disk: {}", filepath);
 
     const auto& [insert_iter, _] = s_contents_cache.emplace(m_hash, std::move(contents));
     return insert_iter->second;
@@ -96,9 +93,7 @@ std::unique_ptr<FileBrowserNode> FileBrowserNode::create(std::optional<fs::path>
 {
     auto fallback = [](bool show_warning) {
         if (show_warning) {
-            LOG(Warning)
-                << "Invalid path argument to FileBrowserNode::create, Falling back to current "
-                   "working directory";
+            LOG(Warning) << "Invalid path argument to FileBrowserNode::create. Falling back to current working directory.";
         }
         const fs::path wd = fs::current_path();
         return std::unique_ptr<FileBrowserNode>(new FileBrowserNode(wd));
@@ -111,20 +106,19 @@ std::unique_ptr<FileBrowserNode> FileBrowserNode::create(std::optional<fs::path>
     const fs::path relative_path = *path_request;
 
     if (!fs::exists(relative_path)) {
-        LOG(Error) << "FileBrowser attempted to load non-existent file:" << relative_path;
+        LOG(Error) << std::format("FileBrowser attempted to load non-existent file: {}", relative_path.string());
         return fallback(true);
     }
 
     const fs::path canonical_path = fs::canonical(relative_path);
 
     if (!fs::is_directory(canonical_path) && !fs::is_regular_file(canonical_path)) {
-        LOG(Error) << "Attemped to load a path (" << canonical_path
-                   << ") that wasn't a directory or regular file!";
+        LOG(Error) << std::format("Attempted to load a path ({}) that wasn't a directory or regular file!", canonical_path.string());
         return fallback(true);
     }
 
     if (!canonical_path.has_filename()) {
-        LOG(Error) << "No filename for file: " << canonical_path;
+        LOG(Error) << std::format("No filename for file: {}", canonical_path.string());
         return fallback(true);
     }
 
@@ -170,8 +164,7 @@ bool OpenFiles::open(const std::string& requested_filepath)
     if (handle_attempt) {
         open(*handle_attempt);
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -181,16 +174,15 @@ void OpenFiles::open(FileHandle handle)
     auto it = std::find(m_files.begin(), m_files.end(), handle);
     if (it != m_files.end()) {
         m_focus = it - m_files.begin();
-        LOG(Verbose) << "Successfully switched focus to previously-opened file: "
-                     << handle.filepath();
+        LOG(Verbose) << std::format("Successfully switched focus to previously opened file: {}", handle.filepath());
         return;
     }
 
     m_files.push_back(handle);
     m_focus = m_files.size() - 1;
 
-    LOG(Verbose) << "Successfully opened new file: " << handle.filepath();
-    LOG(Verbose) << "Number of currently open files: " << m_files.size();
+    LOG(Verbose) << std::format("Successfully opened new file: {}", handle.filepath());
+    LOG(Verbose) << std::format("Number of currently open files: {}", m_files.size());
 }
 
 void OpenFiles::close(size_t tab_index)
@@ -199,19 +191,16 @@ void OpenFiles::close(size_t tab_index)
 
     if (m_files.empty()) {
         m_focus = {};
-    }
-    else {
+    } else {
         assert(m_focus);
         const size_t old_open_file_count = m_files.size();
         const size_t old_focused_tab_idx = *m_focus;
 
-        const bool closed_tab_to_left_of_focus = tab_index < old_focused_tab_idx;
-        const bool closed_last_tab =
-            tab_index == old_focused_tab_idx && old_focused_tab_idx == old_open_file_count - 1;
+        const bool closed_tab_to_the_left_of_focus = tab_index < old_focused_tab_idx;
+        const bool closed_last_tab = tab_index == old_focused_tab_idx && old_focused_tab_idx == old_open_file_count - 1;
 
-        if (closed_tab_to_left_of_focus || closed_last_tab) {
+        if (closed_tab_to_the_left_of_focus || closed_last_tab) {
             m_focus = old_focused_tab_idx - 1;
         }
     }
 }
-

@@ -12,7 +12,7 @@
 #include "StringBuffer.hpp"
 #include "Timer.hpp"
 #include "cxxopts.hpp"
-#include "fmt/format.h"
+//#include "fmt/format.h"
 #include "imgui.h"
 #include "lldb/API/LLDB.h"
 

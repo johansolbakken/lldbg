@@ -1,32 +1,32 @@
 #pragma once
 
-#include "fmt/format.h"
+#include <format>
+#include <string>
+#include <iterator>
 
-// Just a convenience class to ensure all fmt buffers are nul-terminated
+// Convenience class to ensure all buffers are null-terminated
 class StringBuffer {
-    fmt::memory_buffer m_buffer;
+    std::string m_buffer;
 
 public:
     template <typename... Args>
-    inline void format(const char* fmt_str, Args&&... args)
+    inline void format(const std::format_string<Args...>& fmt_str, Args&&... args)
     {
-        // TODO: loop over args parameters, check if they are pointers and if they are null, don't
-        // call fmt::format_to
-        fmt::format_to(m_buffer, fmt_str, args...);
-        m_buffer.push_back('\0');
+        // Format the string and append to the buffer
+        std::format_to(std::back_inserter(m_buffer), fmt_str, std::forward<Args>(args)...);
+        m_buffer.push_back('\0'); // Ensure null termination
     }
 
     template <typename... Args>
-    inline void format_(const char* fmt_str, Args&&... args)
+    inline void format_(const std::format_string<Args...>& fmt_str, Args&&... args)
     {
-        // TODO: loop over args parameters, check if they are pointers and if they are null, don't
-        // call fmt::format_to
-        fmt::format_to(m_buffer, fmt_str, args...);
+        std::format_to(std::back_inserter(m_buffer), fmt_str, std::forward<Args>(args)...);
     }
 
-    inline const char* data(void) { return m_buffer.data(); }
+    inline const char* data() const { return m_buffer.c_str(); }
 
-    inline void clear(void) { m_buffer.clear(); }
+    inline void clear() { m_buffer.clear(); }
 
     inline void push_back(char c) { m_buffer.push_back(c); }
 };
+
